@@ -33,7 +33,9 @@ npm start
 
 ## Conteúdo real: onde adicionar
 
-**Todo o conteúdo atual é DEMONSTRAÇÃO. Não ensina Biodisponibilidade, não foi extraído de aulas e não deve ser usado como material científico para a prova.**
+O catálogo contém as Aulas 08, 09, 10 e 11. O arquivo fornecido da Aula 11 está preservado em `src/content/aula-11-minerais.ts`; `src/content/aula-11-adapter.ts` adapta seus campos às interfaces existentes sem modificar os IDs. O banco completo reúne 100 questões e 72 flashcards. As questões de estudo não são perguntas oficiais da prova.
+
+A Aula 11 inclui oito blocos com referências aos slides, 25 questões comentadas, 18 flashcards, caso clínico com três respostas reveláveis e dez lembretes de emergência. A rota é `/materias/aula-11-biodisponibilidade-minerais/`. A integração mantém a chave `giovanna-study-v1` e a versão do schema; não exige reiniciar o progresso. Casos clínicos permitem escrever uma tentativa antes de revelar as respostas; essas anotações livres não são persistidas.
 
 1. Edite os arrays em `src/content/index.ts` com os resumos reais revisados. Os componentes consomem esses arrays, sem copiar aulas para a UI.
 2. Siga os contratos `StudyModule`, `LessonSection`, `Flashcard`, `Question`, `QuizAttempt` e `StudyProgress` de `src/types/study.ts`.

@@ -1,4 +1,5 @@
 import { aula10 } from "@/content/aula-10";
+import { aula11Module, aula11Questions, aula11Flashcards } from "@/content/aula-11-adapter";
 import { aula09 } from "@/content/aula-09";
 import { aula08 } from "@/content/aula-08";
 import type { StudyModule, Flashcard, Question } from "@/types/study";
@@ -156,7 +157,7 @@ const aula10Module: StudyModule = {
 };
 
 
-export const modules: StudyModule[] = [aula08Module, aula09Module, aula10Module];
+export const modules: StudyModule[] = [aula08Module, aula09Module, aula10Module, aula11Module];
 export function lessonLabel(moduleId: string) {
   const lesson = modules.find((item) => item.id === moduleId);
   return lesson?.number ? `Aula ${String(lesson.number).padStart(2, "0")}` : "Aula";
@@ -185,6 +186,7 @@ export const questions: Question[] = aula08.questions.map((question) => ({
   sourcePages: [...question.sourcePages],
   source: `Aula 08 · p. ${question.sourcePages.join(", ")}`,
 }));
+
 
 flashcards.push(...aula09.flashcards.map((card) => ({
   id: card.id,
@@ -231,3 +233,6 @@ questions.push(...aula10.questions.map((question) => ({
   sourcePages: [...question.sourcePages],
   source: `Aula 10 · p. ${question.sourcePages.join(", ")}`,
 })));
+
+flashcards.push(...aula11Flashcards);
+questions.push(...aula11Questions);

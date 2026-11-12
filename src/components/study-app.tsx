@@ -1079,6 +1079,10 @@ export function Emergency() {
                 <p className="source-citation">Referência: {lessonLabel(m.id)} · p. {item.sourcePages.join(", ")}</p>
               </div>
             ))}
+            {m.lastMinuteReview && <>
+              <h4>Revisão de última hora · {lessonLabel(m.id)}</h4>
+              <ul>{m.lastMinuteReview.map(item => <li key={item}>{item}</li>)}</ul>
+            </>}
           </section>
         ))}
       </div>

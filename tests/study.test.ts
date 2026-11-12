@@ -11,7 +11,7 @@ import {
   validateQuestions,
 } from "../src/lib/study";
 test("Aula 08 disponibiliza os blocos, questões e cartões do material", () => {
-  assert.equal(modules.length, 3);
+  assert.equal(modules.length, 4);
   assert.equal(modules[0].sections.length, 8);
   assert.equal(questions.filter((q) => q.moduleId === modules[0].id).length, 25);
   assert.equal(flashcards.filter((f) => f.moduleId === modules[0].id).length, 18);
@@ -154,8 +154,8 @@ test("Aula 09 preserva integralmente o material no modelo da aplicação", async
   assert.deepEqual(lesson.caseStudy?.prompts, aula09.clinicalCase.questions.map((q) => ({ question: q.prompt, answer: q.modelAnswer })));
   aula09.quickReview.forEach((item) => assert.ok(lesson.memorization?.some((m) => m.body === item.mustKnow)));
   assert.ok(lesson.importantNotes?.includes(aula09.source.note));
-  assert.equal(new Set(modules.flatMap((m) => m.sections.map((s) => s.id))).size, 24);
-  assert.equal(new Set(flashcards.map((f) => f.id)).size, 54);
+  assert.equal(new Set(modules.flatMap((m) => m.sections.map((s) => s.id))).size, 32);
+  assert.equal(new Set(flashcards.map((f) => f.id)).size, 72);
 });
 
 test("progresso da Aula 08 permanece intacto ao persistir a Aula 09 e simulados mistos", () => {
@@ -175,9 +175,9 @@ test("progresso da Aula 08 permanece intacto ao persistir a Aula 09 e simulados 
 
 test("Aula 10: conteudo integral, referencias e totais reais", async () => {
   const { aula10 } = await import("../src/content/aula-10");
-  assert.equal(modules.length, 3);
-  assert.equal(questions.length, 75);
-  assert.equal(flashcards.length, 54);
+  assert.equal(modules.length, 4);
+  assert.equal(questions.length, 100);
+  assert.equal(flashcards.length, 72);
   const lesson = modules.find((m) => m.id === aula10.id)!;
   assert.equal(lesson.sections.length, 8);
   aula10.sections.forEach((section, index) => {
@@ -211,12 +211,12 @@ test("Aula 10: conteudo integral, referencias e totais reais", async () => {
   assert.equal(lesson.caseStudy?.description, aula10.clinicalCase.scenario);
   aula10.quickReview.forEach((item) => assert.ok(lesson.memorization?.some((m) => m.body === item.mustKnow)));
   assert.deepEqual(lesson.importantNotes, [aula10.source.note, ...aula10.importantNotes]);
-  assert.ok(lesson.memorization?.find((m) => m.title.includes("Colina"))?.body.includes("IOM/NASEM AI"));
+  assert.ok(lesson.memorization?.find((m) => m.title.includes("Colina") && m.title !== "Colina")?.body.includes("IOM/NASEM AI"));
   assert.ok(lesson.memorization?.find((m) => m.title.includes("B6") && m.title !== "B6")?.body.includes("51+"));
   assert.doesNotThrow(() => validateQuestions(questions));
 });
 
-test("simulado misto inclui as tres aulas sem duplicar ou alterar gabaritos", () => {
+test("simulado misto inclui as quatro aulas sem duplicar ou alterar gabaritos", () => {
   const snapshot = JSON.stringify(questions);
   for (let i = 0; i < 30; i++) {
     const mixed = selectQuizQuestions(questions, 10);
@@ -235,10 +235,11 @@ test("simulado misto inclui as tres aulas sem duplicar ou alterar gabaritos", ()
 });
 
 test("persistencia independente das tres aulas, rascunho misto e desempenho real", () => {
+  const originalModules = modules.slice(0, 3);
   const now = new Date().toISOString();
-  const selected = modules.map((m) => questions.find((q) => q.moduleId === m.id)!);
+  const selected = originalModules.map((m) => questions.find((q) => q.moduleId === m.id)!);
   const attempt = { id: "three", title: "Misto", startedAt: now, finishedAt: now, questionIds: selected.map((q) => q.id), answers: { [selected[0].id]: selected[0].correctOptionId, [selected[2].id]: selected[2].correctOptionId } };
-  const state = { ...emptyProgress(), completedLessons: [modules[0].id], completedSections: [modules[0].sections[0].id, modules[1].sections[0].id, modules[2].sections[0].id], visitedLessons: modules.map((m) => m.id), attempts: [attempt], draft: { ...attempt, id: "draft", finishedAt: undefined }, flashcards: Object.fromEntries(modules.map((m) => [flashcards.find((f) => f.moduleId === m.id)!.id, "review" as const])) };
+  const state = { ...emptyProgress(), completedLessons: [modules[0].id], completedSections: [modules[0].sections[0].id, modules[1].sections[0].id, modules[2].sections[0].id], visitedLessons: originalModules.map((m) => m.id), attempts: [attempt], draft: { ...attempt, id: "draft", finishedAt: undefined }, flashcards: Object.fromEntries(originalModules.map((m) => [flashcards.find((f) => f.moduleId === m.id)!.id, "review" as const])) };
   const restored = parseProgress(JSON.stringify(state), questions);
   assert.deepEqual(restored, JSON.parse(JSON.stringify(state)));
   assert.deepEqual(restored.completedLessons, [modules[0].id]);

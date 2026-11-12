@@ -45,6 +45,7 @@ export interface StudyModule {
   };
   memorization?: MemorizationItem[];
   importantNotes?: string[];
+  lastMinuteReview?: string[];
 }
 export interface Flashcard {
   topic?: string;
