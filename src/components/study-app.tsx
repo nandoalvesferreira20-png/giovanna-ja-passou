@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { modules, questions, flashcards, lessonLabel } from "@/content";
 import { useStudy } from "@/hooks/use-study";
-import { score, shuffled } from "@/lib/study";
+import { score, selectQuizQuestions, modulePerformance } from "@/lib/study";
 import { Button } from "@/components/ui/button";
 import { LessonPractice } from "@/components/study/lesson-practice";
 import type { QuizAttempt, StudyModule } from "@/types/study";
@@ -466,8 +466,8 @@ export function Lesson({ slug }: { slug: string }) {
         <article className="panel lesson">
           {m.sections.map((s, i) => (
             <section key={s.id}>
-              <span className="step-number">0{i + 1}</span>
-              <h2>{s.title}</h2>
+              <details className="lesson-expander" open={m.expandableSections ? undefined : true}>
+              <summary><span className="step-number">0{i + 1}</span><h2>{s.title}</h2></summary>
               {s.summary && <p className="lesson-summary">{s.summary}</p>}
               {s.body && <p>{s.body}</p>}
               {s.blocks && (
@@ -505,6 +505,7 @@ export function Lesson({ slug }: { slug: string }) {
                   Referência: {lessonLabel(m.id)} · p. {s.sourcePages.join(", ")}
                 </p>
               )}
+              </details>
               <Button
                 variant={p.completedSections.includes(s.id) ? "outline" : "ghost"}
                 onClick={() =>
@@ -582,13 +583,19 @@ export function Lesson({ slug }: { slug: string }) {
           </p>
           <div className="case-prompts">
             {m.caseStudy.prompts.map((prompt, index) => (
-              <details className="case-prompt" key={prompt.question}>
+              <div className="case-prompt" key={prompt.question}>
+                <label className="field">
+                  <span>{index + 1}. {prompt.question}</span>
+                  <textarea rows={3} placeholder="Escreva sua tentativa antes de revelar a resposta" />
+                </label>
+              <details>
                 <summary>
                   <span>{index + 1}</span>
-                  {prompt.question}
+                  Revelar resposta comentada
                 </summary>
                 <p>{prompt.answer}</p>
               </details>
+              </div>
             ))}
           </div>
         </section>
@@ -968,6 +975,10 @@ export function Results() {
               {m.title}{" "}
               <b>{modulePercent(m, p)}%</b>
             </p>
+            <p>{(() => {
+              const result = modulePerformance(p.attempts, questions, m.id);
+              return result.total ? `${result.correct} de ${result.total} acertos · ${result.percent}%` : "Nenhuma questão praticada nesta aula ainda.";
+            })()}</p>
             <Progress
               value={modulePercent(m, p)}
               label={m.title}
@@ -1112,7 +1123,7 @@ export function Quiz() {
   const [mode, setMode] = useState(initialMode),
     [mod, setMod] = useState(initialModule),
     [subject, setSubject] = useState(initialSubject),
-    [count, setCount] = useState(5),
+    [count, setCount] = useState(() => initialMode() === "rapido" ? 10 : 5),
     [index, setIndex] = useState(0),
     [result, setResult] = useState<QuizAttempt | null>(null),
     [confirm, setConfirm] = useState(false),
@@ -1140,8 +1151,7 @@ export function Quiz() {
               : mod === "all"
               ? "Simulado geral"
               : modules.find((m) => m.id === mod)?.title || "Simulado",
-      questionIds: shuffled(pool)
-        .slice(0, Math.min(count, pool.length))
+      questionIds: selectQuizQuestions(pool, mode === "rapido" ? 10 : count)
         .map((q) => q.id),
       answers: {},
     };
@@ -1408,6 +1418,7 @@ export function Quiz() {
               key={value}
               onClick={() => {
                 setMode(value);
+                if (value === "rapido") setCount(10);
                 if (value === "geral" || value === "rapido") {
                   setMod("all");
                   setSubject("all");
@@ -1423,7 +1434,7 @@ export function Quiz() {
         <label className="field">
           Aula
           <select value={mod} onChange={(e) => { setMod(e.target.value); setSubject("all"); }}>
-            <option value="all">Misto: Aulas 08 e 09</option>
+            <option value="all">Misto: {modules.map((m) => lessonLabel(m.id)).join(", ")}</option>
             {modules.map((m) => <option key={m.id} value={m.id}>{m.title}</option>)}
           </select>
         </label>
@@ -1445,7 +1456,8 @@ export function Quiz() {
           {[5, 10, 15, 20, 25].map((n) => (
             <button
               key={n}
-              aria-pressed={count === n}
+              disabled={mode === "rapido" && n !== 10}
+              aria-pressed={(mode === "rapido" ? 10 : count) === n}
               className={count === n ? "selected" : ""}
               onClick={() => setCount(n)}
             >

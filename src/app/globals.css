@@ -2047,3 +2047,11 @@ footer,
     transform: none !important;
   }
 }
+
+.lesson-expander > summary { cursor: pointer; min-height: 48px; }
+.lesson-expander > summary h2 { display: inline; margin-left: 12px; }
+.lesson-expander > summary .step-number { display: inline-flex; }
+.case-prompt textarea { width: 100%; min-height: 100px; padding: 12px; border: 1px solid #e9d6eb; border-radius: 12px; background: #fff; color: inherit; font: inherit; resize: vertical; }
+.lesson-layout > *, .module-card, .case-prompt, .field { min-width: 0; }
+.lesson, .case-prompt, .source-citation, .module-card, .flashcard { overflow-wrap: anywhere; }
+.case-prompt details summary { min-height: 48px; }

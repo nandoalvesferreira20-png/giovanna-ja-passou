@@ -1,3 +1,4 @@
+import { aula10 } from "@/content/aula-10";
 import { aula09 } from "@/content/aula-09";
 import { aula08 } from "@/content/aula-08";
 import type { StudyModule, Flashcard, Question } from "@/types/study";
@@ -108,7 +109,54 @@ const aula09Module: StudyModule = {
   importantNotes: [aula09.source.note],
 };
 
-export const modules: StudyModule[] = [aula08Module, aula09Module];
+const aula10Module: StudyModule = {
+  expandableSections: true,
+  id: aula10.id,
+  number: aula10.number,
+  slug: aula10.slug,
+  title: `Aula 10 — ${aula10.title}`,
+  subtitle: aula10.subtitle,
+  description: "Compreender formas, funções, absorção, biodisponibilidade, fontes, recomendações, deficiências e genética da vitamina B6 e da colina.",
+  instructor: aula10.instructor,
+  sourceFile: aula10.source.filename,
+  sourceTotalPages: aula10.source.totalPages,
+  demonstration: false,
+  sections: aula10.sections.map((section) => ({
+    id: section.id,
+    title: section.title,
+    steps: [...section.summary],
+    sourcePages: [...section.sourcePages],
+    keyTakeaway: section.takeaway,
+  })),
+  concepts: aula10.sections.map((section) => section.takeaway),
+  caseStudy: {
+    title: aula10.clinicalCase.title,
+    description: aula10.clinicalCase.scenario,
+    sourcePages: [...aula10.clinicalCase.sourcePages],
+    prompts: aula10.clinicalCase.questions.map((question) => ({
+      question: question.prompt,
+      answer: question.modelAnswer,
+    })),
+  },
+  memorization: [
+    ...aula10.quickReview.map((item) => ({
+      title: item.topic,
+      body: item.mustKnow,
+      sourcePages: [...new Set(aula10.sections.filter((section) => item.topic === "Integração" ? section.id === "a10-s08" : section.title.startsWith(item.topic)).flatMap((section) => [...section.sourcePages]))],
+    })),
+    ...aula10.recommendedIntakes.map((item) => ({
+      title: `Recomendações de ${item.vitamin}`,
+      body: "adults19to50" in item
+        ? `RDA: adultos 19–50 anos: ${item.adults19to50} ${item.unit}; homens 51+: ${item.men51plus} ${item.unit}; mulheres 51+: ${item.women51plus} ${item.unit}; gestação: ${item.pregnancy} ${item.unit}; lactação: ${item.lactation} ${item.unit}.`
+        : `${item.reference}: homens: ${item.men} ${item.unit}; mulheres: ${item.women} ${item.unit}; gestação: ${item.pregnancy} ${item.unit}; lactação: ${item.lactation} ${item.unit}.`,
+      sourcePages: [...item.sourcePages],
+    })),
+  ],
+  importantNotes: [aula10.source.note, ...aula10.importantNotes],
+};
+
+
+export const modules: StudyModule[] = [aula08Module, aula09Module, aula10Module];
 export function lessonLabel(moduleId: string) {
   const lesson = modules.find((item) => item.id === moduleId);
   return lesson?.number ? `Aula ${String(lesson.number).padStart(2, "0")}` : "Aula";
@@ -159,4 +207,27 @@ questions.push(...aula09.questions.map((question) => ({
   difficulty: question.difficulty === "médio" ? "média" as const : question.difficulty,
   sourcePages: [...question.sourcePages],
   source: `Aula 09 · p. ${question.sourcePages.join(", ")}`,
+})));
+
+flashcards.push(...aula10.flashcards.map((card) => ({
+  id: card.id,
+  moduleId: aula10.id,
+  front: card.front,
+  back: card.back,
+  topic: card.topic,
+  important: true,
+  sourcePages: [...card.sourcePages],
+})));
+
+questions.push(...aula10.questions.map((question) => ({
+  id: question.id,
+  moduleId: aula10.id,
+  prompt: question.statement,
+  options: question.options.map((option) => ({ ...option })),
+  correctOptionId: question.correctOptionId,
+  explanation: question.explanation,
+  subject: question.topic,
+  difficulty: question.difficulty === "médio" ? "média" as const : question.difficulty,
+  sourcePages: [...question.sourcePages],
+  source: `Aula 10 · p. ${question.sourcePages.join(", ")}`,
 })));

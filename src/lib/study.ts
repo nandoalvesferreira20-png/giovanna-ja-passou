@@ -126,3 +126,29 @@ export function parseProgress(
     draft: p.draft ? preserveArchivedResults(p.draft) : null,
   };
 }
+
+// Include every available lesson before filling the remaining mixed-quiz slots.
+export function selectQuizQuestions(pool: Question[], count: number): Question[] {
+  const limit = Math.min(Math.max(0, Math.floor(count)), pool.length);
+  const randomized = shuffled(pool);
+  const representatives = [...new Set(randomized.map((q) => q.moduleId))]
+    .map((id) => randomized.find((q) => q.moduleId === id)!);
+  const selected = representatives.slice(0, limit);
+  const selectedIds = new Set(selected.map((q) => q.id));
+  return shuffled([...selected, ...randomized.filter((q) => !selectedIds.has(q.id)).slice(0, limit - selected.length)]);
+}
+
+export function modulePerformance(attempts: QuizAttempt[], qs: Question[], moduleId: string) {
+  const bank = new Map(qs.filter((q) => q.moduleId === moduleId).map((q) => [q.id, q]));
+  let total = 0;
+  let correct = 0;
+  for (const attempt of attempts) {
+    for (const id of attempt.questionIds) {
+      const question = bank.get(id);
+      if (!question) continue;
+      total++;
+      if (attempt.answers[id] === question.correctOptionId) correct++;
+    }
+  }
+  return { total, correct, percent: total ? Math.round(correct / total * 100) : null };
+}

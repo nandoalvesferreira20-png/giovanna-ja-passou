@@ -30,6 +30,7 @@ export interface StudyModule {
   title: string;
   description: string;
   sections: LessonSection[];
+  expandableSections?: boolean;
   concepts: string[];
   demonstration: boolean;
   subtitle?: string;
